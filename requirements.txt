@@ -1,0 +1,14 @@
+langchain
+langchain-openai
+langchain-community==0.3.31
+langchain-classic
+faiss-cpu
+tiktoken
+pypdf
+rank_bm25
+sentence-transformers
+rapidfuzz
+python-dotenv
+ragas
+langchain-ollama
+langchain-groq

@@ -1,0 +1,28 @@
+# Secrets
+.env
+
+# Virtual environment
+venv/
+.venv/
+
+# Generated / cached artifacts
+embedding_cache/
+faiss_index/
+eval/results/
+*.log
+
+
+# Source documents (copyrighted; see README for manual download instructions)
+data/*.pdf
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+
+# OS
+.DS_Store
+Thumbs.db
