@@ -9,52 +9,16 @@ This repository is a refactored, modular version of an original prototype notebo
 control, testing, and reuse outside of a single notebook.
 
 The reference documents used are two publicly available AML/CTF industry guidance documents from the
-[Wolfsberg Group](https://db.wolfsberg-group.org):
+[Wolfsberg Group](https://wolfsberg-group.org/resources):
 
-1. **Country Risk FAQ (2024)** — a structured Q&A document
-2. **Guidance on the Risk-Based Approach (June 2026)** — a narrative guidance document
+1. Country Risk FAQ (2024) — a structured Q&A document
+2. Guidance on the Risk-Based Approach (June 2026) — a narrative guidance document
 
 ## Architecture
+![Architecture diagram](assets/architecture.svg)
 
-```
-                        ┌─────────────┐
-                        │   Query     │
-                        └──────┬──────┘
-                               │
-                               ▼
-                  ┌──────────────────────────┐
-                  │  LLM Response Cache Check │
-                  │  (in-memory or Redis)     │──── hit ──► Answer
-                  └─────────────┬─────────────┘
-                              miss
-                               ▼
-                 ┌─────────────┴─────────────┐
-                 ▼                           ▼
-        ┌─────────────────┐        ┌──────────────────────┐
-        │  BM25 Retriever   │        │   FAISS Retriever     │
-        │  (sparse/lexical) │        │   (dense + MMR)        │
-        └────────┬──────────┘        └───────────┬───────────┘
-                 │                                │
-                 └─────────────┬──────────────────┘
-                                ▼
-                  ┌──────────────────────────┐
-                  │  Ensemble Retriever (RRF) │
-                  └─────────────┬─────────────┘
-                                ▼
-                  ┌──────────────────────────┐
-                  │  Cross-Encoder Reranker    │
-                  │  (BAAI/bge-reranker-v2-m3) │
-                  └─────────────┬─────────────┘
-                                ▼
-                  ┌──────────────────────────┐
-                  │   Prompt Template + LLM    │
-                  │   (Azure OpenAI)           │
-                  └─────────────┬─────────────┘
-                                ▼
-                        ┌─────────────┐
-                        │   Answer    │
-                        └─────────────┘
-```
+
+
 
 ## Project Structure
 
@@ -110,7 +74,7 @@ venv\Scripts\activate        # Windows
 pip install -r requirements.txt
 ```
 
-![Dependency installation](assets/pip_install.png)
+![Dependency installation](assets/main_py_run.jpg)
 
 ### 3. Configure environment variables
 
@@ -131,8 +95,8 @@ permitted. Download them manually from the Wolfsberg Group's resources pages and
 
 | File | Source page |
 |---|---|
-| `Wolfsberg Group Country Risk FAQs (2024).pdf` | [wolfsberg-group.org/resources/rba](https://wolfsberg-group.org/resources/rba) |
-| `Wolfsberg Group - Risk Based Approach Guidance _June2026.pdf` | [wolfsberg-group.org/resources/rba](https://wolfsberg-group.org/resources/rba) |
+| `Wolfsberg Group Country Risk FAQs.pdf` | [wolfsberg-group.org/resources/rba](https://wolfsberg-group.org/resources/rba) |
+| `Wolfsberg Group - Risk Based Approach Guidance.pdf` | [wolfsberg-group.org/resources/rba](https://wolfsberg-group.org/resources/rba) |
 
 ### 5. Build the index
 
@@ -156,7 +120,7 @@ Or start an interactive session:
 python main.py --interactive
 ```
 
-![Example query and response](assets/main_py_run.png)
+![Example query and response](assets/main_py_run_question.jpg)
 
 ## Using the Pipeline Programmatically
 
@@ -180,6 +144,7 @@ from src.retrieval import build_filtered_retriever
 rba_only = build_filtered_retriever(pipeline.vectorstore, {"doc_type": "rba_guidance"})
 result = pipeline.ask("What is prioritisation?", retriever=rba_only)
 ```
+![Example query and response](assets/main_run_answer.jpg)
 
 ## Adding More Documents
 
@@ -246,8 +211,6 @@ python eval/evaluate.py              # full dataset
 python eval/evaluate.py --limit 5    # quick smoke test on the first 5 questions
 ```
 
-![Evaluation run and per-question scores](assets/eval_scores.png)
-
 Results are printed to the console and saved as a timestamped CSV under `eval/results/`, so scores
 can be compared across runs after changing chunking, retrieval, or reranking parameters.
 
@@ -256,9 +219,11 @@ PDF, cross-document questions requiring synthesis across both, a couple of near-
 to test retrieval precision, and one deliberately out-of-scope question to confirm the grounding
 prompt declines rather than fabricates an answer.
 
-![Evaluation dataset structure](assets/eval_dataset.png)
+**Example results** (5-question smoke test; full results saved in csv)
 
-**Example results** (5-question smoke test; full results in [`eval/results/sample_eval_results.csv`](eval/results/sample_eval_results.csv)):
+![Evaluation run and per-question scores](assets/eval_scores.jpg) 
+
+
 
 | Metric | Average Score |
 |---|---|
