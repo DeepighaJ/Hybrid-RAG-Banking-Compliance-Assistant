@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="1010" viewBox="0 0 680 1010" role="img">
+<title>Hybrid RAG architecture</title>
+<desc>Offline indexing pipeline builds a FAISS vector index and a BM25 keyword index from banking PDFs. The online query pipeline checks a response cache, retrieves from both indexes, fuses results, reranks, and generates a grounded answer. A separate offline evaluation pipeline scores pipeline outputs with Ragas, judged by an independent model.</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#374151" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+</defs>
+<style>
+.t{font:400 14px Arial,sans-serif;fill:#111827;}
+.ts{font:400 12px Arial,sans-serif;fill:#4b5563;}
+.th{font:500 14px Arial,sans-serif;fill:#111827;}
+.sec{fill:#f9fafb;stroke:#9ca3af;stroke-width:0.5;}
+.blue{fill:#e6f1fb;stroke:#378ade;stroke-width:0.5;}
+.teal{fill:#e1f5ee;stroke:#1d9e75;stroke-width:0.5;}
+.coral{fill:#faece7;stroke:#d85a30;stroke-width:0.5;}
+.purple{fill:#eeedfe;stroke:#7f77dd;stroke-width:0.5;}
+.gray{fill:#f1efe8;stroke:#888780;stroke-width:0.5;}
+.pink{fill:#fbeaf0;stroke:#d4537e;stroke-width:0.5;}
+.arr{stroke:#374151;stroke-width:1.5;fill:none;}
+</style>
+
+<rect x="40" y="40" width="600" height="260" rx="20" class="sec"/>
+<text x="60" y="66" class="th">Offline indexing pipeline</text>
+
+<rect x="60" y="140" width="130" height="44" rx="8" class="blue"/>
+<text x="125" y="162" class="th" text-anchor="middle" dominant-baseline="central">Banking PDFs</text>
+
+<rect x="230" y="134" width="170" height="56" rx="8" class="blue"/>
+<text x="315" y="152" class="th" text-anchor="middle" dominant-baseline="central">Load &amp; chunk PDFs</text>
+<text x="315" y="170" class="ts" text-anchor="middle" dominant-baseline="central">Splitter + metadata tags</text>
+
+<rect x="440" y="134" width="160" height="56" rx="8" class="coral"/>
+<text x="520" y="152" class="th" text-anchor="middle" dominant-baseline="central">Azure embeddings</text>
+<text x="520" y="170" class="ts" text-anchor="middle" dominant-baseline="central">Disk-cached</text>
+
+<rect x="150" y="230" width="140" height="44" rx="8" class="teal"/>
+<text x="220" y="252" class="th" text-anchor="middle" dominant-baseline="central">FAISS index</text>
+
+<rect x="400" y="230" width="140" height="44" rx="8" class="teal"/>
+<text x="470" y="252" class="th" text-anchor="middle" dominant-baseline="central">BM25 index</text>
+
+<line x1="190" y1="162" x2="228" y2="162" class="arr" marker-end="url(#arrow)"/>
+<path d="M400 152 L440 152" class="arr" marker-end="url(#arrow)"/>
+<path d="M520 190 L520 210 L220 210 L220 228" class="arr" marker-end="url(#arrow)"/>
+<path d="M315 190 L315 210 L470 210 L470 228" class="arr" marker-end="url(#arrow)"/>
+
+<rect x="40" y="340" width="600" height="550" rx="20" class="sec"/>
+<text x="60" y="366" class="th">Online query pipeline</text>
+
+<rect x="270" y="400" width="180" height="44" rx="8" class="blue"/>
+<text x="360" y="422" class="th" text-anchor="middle" dominant-baseline="central">User question</text>
+
+<rect x="270" y="470" width="180" height="56" rx="8" class="gray"/>
+<text x="360" y="488" class="th" text-anchor="middle" dominant-baseline="central">Response cache</text>
+<text x="360" y="506" class="ts" text-anchor="middle" dominant-baseline="central">Memory or Redis</text>
+
+<rect x="70" y="570" width="190" height="56" rx="8" class="teal"/>
+<text x="165" y="588" class="th" text-anchor="middle" dominant-baseline="central">BM25 retriever</text>
+<text x="165" y="606" class="ts" text-anchor="middle" dominant-baseline="central">Sparse keyword search</text>
+
+<rect x="420" y="570" width="190" height="56" rx="8" class="teal"/>
+<text x="515" y="588" class="th" text-anchor="middle" dominant-baseline="central">FAISS retriever</text>
+<text x="515" y="606" class="ts" text-anchor="middle" dominant-baseline="central">Dense search + MMR</text>
+
+<rect x="250" y="660" width="220" height="44" rx="8" class="purple"/>
+<text x="360" y="682" class="th" text-anchor="middle" dominant-baseline="central">Ensemble retriever (RRF)</text>
+
+<rect x="230" y="730" width="260" height="56" rx="8" class="purple"/>
+<text x="360" y="748" class="th" text-anchor="middle" dominant-baseline="central">Cross-encoder reranker</text>
+<text x="360" y="766" class="ts" text-anchor="middle" dominant-baseline="central">BAAI bge-reranker-v2-m3</text>
+
+<rect x="230" y="810" width="260" height="56" rx="8" class="coral"/>
+<text x="360" y="828" class="th" text-anchor="middle" dominant-baseline="central">Azure GPT-5 mini</text>
+<text x="360" y="846" class="ts" text-anchor="middle" dominant-baseline="central">Grounded answer + sources</text>
+
+<line x1="360" y1="444" x2="360" y2="468" class="arr" marker-end="url(#arrow)"/>
+<path d="M360 526 L360 545 L165 545 L165 568" class="arr" marker-end="url(#arrow)"/>
+<path d="M360 526 L360 545 L515 545 L515 568" class="arr" marker-end="url(#arrow)"/>
+<path d="M165 626 L165 645 L360 645 L360 658" class="arr" marker-end="url(#arrow)"/>
+<path d="M515 626 L515 645 L360 645 L360 658" class="arr" marker-end="url(#arrow)"/>
+<line x1="360" y1="704" x2="360" y2="728" class="arr" marker-end="url(#arrow)"/>
+<line x1="360" y1="786" x2="360" y2="808" class="arr" marker-end="url(#arrow)"/>
+
+<rect x="40" y="920" width="600" height="70" rx="20" class="pink"/>
+<text x="60" y="946" class="th">Offline evaluation (Ragas)</text>
+<text x="60" y="966" class="ts">Eval dataset -&gt; Ragas metrics -&gt; Groq Llama 3.3 70B judge -&gt; scores report</text>
+</svg>
