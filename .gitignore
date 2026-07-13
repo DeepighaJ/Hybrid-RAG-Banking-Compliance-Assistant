@@ -10,6 +10,7 @@ venv/
 # Generated / cached artifacts
 embedding_cache/
 faiss_index/
+faiss_index_wolfsberg_multi/
 eval/results/
 *.log
 
