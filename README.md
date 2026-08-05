@@ -42,6 +42,8 @@ The reference documents used are two publicly available AML/CTF industry guidanc
 ├── eval/
 │   ├── eval_dataset.py      # Curated questions + reference answers
 │   ├── evaluate.py          # Runs the pipeline, scores with Ragas (Groq judge)
+│   ├── promptfoo_tests.py   # Generates Promptfoo test cases from eval_dataset.py
+│   ├── promptfoo_provider.py      # Promptfoo adapter wrapping 
 │   └── results/             # Saved per-run score reports (gitignored, except sample)
 ├── notebooks/
 │   └── banking_hybrid_rag.ipynb   # Original prototype notebook (reference)
@@ -49,6 +51,7 @@ The reference documents used are two publicly available AML/CTF industry guidanc
 ├── data/                     # Source PDFs (not committed; see Setup step 4)
 ├── main.py                   # CLI entrypoint for querying the pipeline
 ├── requirements.txt
+├── promptfooconfig.yaml
 ├── .env.example
 ├── .gitignore
 └── README.md
@@ -237,6 +240,52 @@ of individual rows showed lower scores generally corresponded to answers that in
 useful adjacent context (e.g., both a standard cadence and its trigger-based exceptions) rather than
 narrowly scoped responses — a reasonable completeness-vs-precision tradeoff for a compliance
 assistant, rather than an indication of irrelevant answers.
+
+## Regression Testing (Promptfoo)
+
+Ragas (above) gives continuous quality *scoring*. This adds a second, complementary layer:
+deterministic pass/fail *regression* testing, suited to catching breakage in CI — the same way a
+metrics dashboard and a test suite serve different purposes in a traditional QA pipeline.
+
+**Design:**
+
+- Test cases are generated from the same `eval/eval_dataset.py` used by Ragas
+  (`eval/promptfoo_tests.py`), so both eval layers share one source of truth instead of two
+  hand-maintained datasets that can drift apart.
+- `eval/promptfoo_provider.py` wraps `RAGPipeline` unchanged — retrieval, reranking, and the prompt
+  template are exactly as configured in `src/pipeline.py` and `src/prompts.py`.
+- `out_of_scope` questions are checked for the exact refusal string; all other query types are
+  graded by an `llm-rubric` assertion against the reference answer, using the same independent
+  Groq/Llama 3.3 judge as the Ragas suite (see [Evaluation](#evaluation) above for why).
+
+**Setup (one-time):**
+
+```bash
+npm install -g promptfoo
+```
+
+Uses the same `.env` as Ragas — no additional credentials needed.
+
+**Run:**
+
+```bash
+promptfoo eval
+promptfoo view      # opens the results grid in a browser
+```
+
+**Results:**
+
+14/14 test cases passing, covering `single_document_faq`, `multi_document_synthesis`,
+`precision_test`, and `out_of_scope` query types.
+
+
+<img width="1282" height="565" alt="image" src="https://github.com/user-attachments/assets/d4c032ab-1db7-4909-af82-ba074449d9e3" />
+
+<img width="1920" height="1020" alt="Screenshot 2026-08-04 213959" src="https://github.com/user-attachments/assets/22f4df7b-3c03-4c89-986d-8f24acd2f299" />
+
+
+
+
 
 ## Notes
 
