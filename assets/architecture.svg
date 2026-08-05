@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img">
 <title>Hybrid RAG Banking Compliance Assistant Architecture</title>
-<desc>Two-pipeline architecture: a document ingestion and indexing pipeline builds FAISS and BM25 indexes from banking PDFs using Azure OpenAI embeddings; a retrieval and generation pipeline processes a user question through hybrid retrieval (BM25, FAISS, reciprocal rank fusion), maximal marginal relevance to reduce redundant chunks, cross-encoder reranking, and Azure OpenAI GPT-5 mini generation. A separate Ragas evaluation pipeline reports Faithfulness 1.0, Context Precision 1.0, and Answer Relevancy 0.81, judged independently by Llama 3.3 70B via Groq.</desc>
+<desc>Two-pipeline architecture: a document ingestion and indexing pipeline builds FAISS and BM25 indexes from banking PDFs using Azure OpenAI embeddings; a retrieval and generation pipeline processes a user question through hybrid retrieval (BM25, FAISS, reciprocal rank fusion), maximal marginal relevance to reduce redundant chunks, cross-encoder reranking, and Azure OpenAI GPT-5 mini generation. A separate evaluation and regression testing panel reports Ragas scores (Faithfulness 1.0, Context Precision 1.0, Answer Relevancy 0.81) alongside a Promptfoo regression suite (14 of 14 test cases passing), both judged independently by Llama 3.3 70B via Groq.</desc>
 <defs>
 <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
 <path d="M2 1L8 5L2 9" fill="none" stroke="#5b6472" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
@@ -45,7 +45,7 @@
 <rect class="bg" x="0" y="0" width="1200" height="900"/>
 
 <text class="title" x="600" y="46">Hybrid RAG Banking Compliance Assistant Architecture</text>
-<text class="subtitle" x="600" y="72">Dense + sparse retrieval, reranking, and independent Ragas evaluation</text>
+<text class="subtitle" x="600" y="72">Dense + sparse retrieval, reranking, Ragas evaluation, and Promptfoo regression testing</text>
 
 <!-- Left panel: Document Ingestion & Indexing Pipeline -->
 <rect class="panel" x="40" y="90" width="550" height="520" rx="18"/>
@@ -127,27 +127,33 @@
 
 <!-- Ragas Evaluation Pipeline — visually separate -->
 <rect class="evalpanel" x="40" y="640" width="1120" height="220" rx="18"/>
-<text class="paneltitle" x="70" y="678" fill="#4a3f9e">Ragas evaluation pipeline</text>
-<text class="cardSub" x="70" y="700" fill="#6a5fc0">Judged by Llama 3.3 70B (Groq) — independent from the pipeline's Azure OpenAI model</text>
+<text class="paneltitle" x="70" y="678" fill="#4a3f9e">Evaluation &amp; regression testing</text>
+<text class="cardSub" x="70" y="700" fill="#6a5fc0">Ragas + Promptfoo, both judged by Llama 3.3 70B (Groq) — independent of the pipeline's Azure model</text>
 
 <g>
-<rect class="card purple" x="70" y="720" width="340" height="110" rx="14"/>
-<text class="statnum purpleTxt" x="240" y="765">1.00</text>
-<text class="statlabel" x="240" y="800">Faithfulness</text>
+<rect class="card purple" x="70" y="720" width="250" height="110" rx="14"/>
+<text class="statnum purpleTxt" x="195" y="765">1.00</text>
+<text class="statlabel" x="195" y="800">Faithfulness</text>
 </g>
 
 <g>
-<rect class="card purple" x="430" y="720" width="340" height="110" rx="14"/>
-<text class="statnum purpleTxt" x="600" y="765">1.00</text>
-<text class="statlabel" x="600" y="800">Context precision</text>
+<rect class="card purple" x="340" y="720" width="250" height="110" rx="14"/>
+<text class="statnum purpleTxt" x="465" y="765">1.00</text>
+<text class="statlabel" x="465" y="800">Context precision</text>
 </g>
 
 <g>
-<rect class="card purple" x="790" y="720" width="340" height="110" rx="14"/>
-<text class="statnum purpleTxt" x="960" y="765">0.81</text>
-<text class="statlabel" x="960" y="800">Answer relevancy</text>
+<rect class="card purple" x="610" y="720" width="250" height="110" rx="14"/>
+<text class="statnum purpleTxt" x="735" y="765">0.81</text>
+<text class="statlabel" x="735" y="800">Answer relevancy</text>
 </g>
 
-<text class="footer" x="600" y="882">Built with LangChain · Azure OpenAI · FAISS · BM25 · Ragas</text>
+<g>
+<rect class="card teal" x="880" y="720" width="250" height="110" rx="14"/>
+<text class="statnum tealTxt" x="1005" y="765">14/14</text>
+<text class="statlabel" x="1005" y="800">Promptfoo regression</text>
+</g>
+
+<text class="footer" x="600" y="882">Built with LangChain · Azure OpenAI · FAISS · BM25 · Ragas · Promptfoo</text>
 
 </svg>
