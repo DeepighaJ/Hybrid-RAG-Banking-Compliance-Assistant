@@ -1,0 +1,34 @@
+# Promptfoo regression suite for the Hybrid RAG banking compliance assistant.
+#
+# This does not replace eval/evaluate.py (Ragas) — it's a separate,
+# assertion-based regression layer that reuses the same EVAL_DATASET so the
+# pipeline gets checked two ways: continuous quality scoring (Ragas) and
+# pass/fail regression testing (Promptfoo), the same way you'd pair metrics
+# dashboards with CI test gates in a traditional QA setup.
+#
+# Run:
+#   promptfoo eval
+#   promptfoo view      # opens the results grid in a browser
+
+description: "Hybrid RAG banking compliance assistant - regression suite"
+
+prompts:
+  - "{{query}}" # placeholder only - the real prompt template lives in src/prompts.py
+
+providers:
+  - id: file://eval/promptfoo_provider.py
+    label: hybrid-rag-pipeline
+
+tests: file://eval/promptfoo_tests.py:generate_tests
+
+# Grading provider for llm-rubric assertions: reuses the same independent
+# Groq/Llama 3.3 judge as eval/evaluate.py (see that file's docstring for why
+# an independent judge is used), so both eval layers share one grading story
+# and you only manage one extra API key (GROQ_API_KEY, already in .env).
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:llama-3.3-70b-versatile
+      config:
+        apiBaseUrl: https://api.groq.com/openai/v1
+        apiKeyEnvar: GROQ_API_KEY
