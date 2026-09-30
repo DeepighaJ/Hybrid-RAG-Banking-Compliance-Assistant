@@ -12,3 +12,6 @@ python-dotenv
 ragas
 langchain-ollama
 langchain-groq
+fastapi
+uvicorn[standard]
+slowapi
