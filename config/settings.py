@@ -81,30 +81,38 @@ FAISS_MMR_LAMBDA = float(os.getenv("FAISS_MMR_LAMBDA", "0.5"))
 
 ENSEMBLE_WEIGHTS = [0.5, 0.5]  # [BM25, FAISS]
 
-RERANK_TOP_N = int(os.getenv("RERANK_TOP_N", "3"))
+RERANK_TOP_N = int(os.getenv("RERANK_TOP_N", "5"))
 RERANKER_MODEL_NAME = os.getenv("RERANKER_MODEL_NAME", "BAAI/bge-reranker-v2-m3")
 
 # ---------------------------------------------------------------------------
 # Evaluation (Ragas)
 #
-# The judge LLM is deliberately independent from both the pipeline's model
-# (Azure gpt-5-mini, OpenAI) and from OpenAI's open-weight models, to avoid
-# any shared-lineage bias between the model being judged and the model doing
-# the judging. Groq hosts Meta's Llama 3.3 70B at no cost (free tier) and at
-# high speed (purpose-built inference hardware), which also avoids the
-# timeout/reasoning-quality issues seen when judging locally with a small
-# CPU-bound model (e.g. llama3.2:1b via Ollama).
+# Judge LLM: openai/gpt-oss-120b via Groq's free tier.
+#
+# History: the original judge (Llama 3.3 70B) was retired by Groq on
+# 2026-08-16, and its first suggested replacement (Qwen 3.6 27B, a preview
+# model) was retired on 2026-09-14. gpt-oss-120b was chosen because it is a
+# Groq *production* model, so it is less likely to be retired at short notice.
+#
+# Trade-off: gpt-oss-120b is an OpenAI open-weight model, so it shares some
+# lineage with the pipeline's Azure gpt-5-mini. This is mitigated by pairing
+# Ragas with Promptfoo's reference-based rubric checks, and by reviewing low
+# faithfulness scores claim by claim (eval/debug_faithfulness.py), which
+# showed that the observed false negatives came from Ragas' claim-splitting
+# step and occurred with both gpt-oss and Qwen judges.
+#
+# The model is configurable via GROQ_JUDGE_MODEL in .env, so a future
+# retirement is a one-line change.
 #
 # Get a free API key (no credit card required): https://console.groq.com
 #
 # Embeddings for the AnswerRelevancy metric still run locally via Ollama,
-# since Groq does not offer an embeddings endpoint and embedding calls are
-# cheap/fast enough that local CPU inference is not a bottleneck here.
+# since Groq does not offer an embeddings endpoint.
 #   ollama pull nomic-embed-text
 # ---------------------------------------------------------------------------
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-GROQ_JUDGE_MODEL = os.getenv("GROQ_JUDGE_MODEL", "llama-3.3-70b-versatile")
+GROQ_JUDGE_MODEL = os.getenv("GROQ_JUDGE_MODEL", "openai/gpt-oss-120b")
 
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 OLLAMA_EMBEDDING_MODEL = os.getenv("OLLAMA_EMBEDDING_MODEL", "nomic-embed-text")
