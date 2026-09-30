@@ -45,12 +45,12 @@ EMBEDDING_DEPLOYMENT_NAME = os.getenv("AZURE_OPENAI_EMBEDDING_DEPLOYMENT", "text
 # ---------------------------------------------------------------------------
 
 DOCUMENT_CONFIG: Dict[str, Dict] = {
-    "Wolfsberg Group Country Risk FAQs (2024).pdf": {
-        "doc_type": "country_risk_faq",
+    "Eastmere Bank - KYC and CDD Procedures FAQ.pdf": {
+        "doc_type": "kyc_faq",
         "has_question_numbers": True,
     },
-    "Wolfsberg Group - Risk Based Approach Guidance _June2026.pdf": {
-        "doc_type": "rba_guidance",
+    "Eastmere Bank - AML Risk Assessment Policy.pdf": {
+        "doc_type": "aml_risk_policy",
         "has_question_numbers": False,
     },
 }
