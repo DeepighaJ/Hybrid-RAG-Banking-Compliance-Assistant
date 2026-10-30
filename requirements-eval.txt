@@ -1,0 +1,8 @@
+# Evaluation and test dependencies (Ragas, Groq judge, Ollama embeddings, pytest).
+# Includes all runtime dependencies:  pip install -r requirements-eval.txt
+-r requirements.txt
+ragas
+langchain-ollama
+langchain-groq
+rapidfuzz
+pytest

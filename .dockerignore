@@ -1,0 +1,29 @@
+# Secrets: never bake credentials into an image
+.env
+.env.*
+
+# Local environments and tooling
+venv/
+.venv/
+.git/
+.gitignore
+.vscode/
+__pycache__/
+*.pyc
+
+# Generated artifacts: the index is rebuilt inside the container from data/
+faiss_index/
+faiss_index_wolfsberg_multi/
+embedding_cache/
+eval/results/
+*.log
+
+# Not needed to serve the API
+eval/
+tests/
+notebooks/
+assets/
+scripts/
+main.py
+promptfooconfig.yaml
+README.md
