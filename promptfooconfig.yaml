@@ -28,7 +28,7 @@ tests: file://eval/promptfoo_tests.py:generate_tests
 defaultTest:
   options:
     provider:
-      id: openai:chat:llama-3.3-70b-versatile
+      id: openai:chat:openai/gpt-oss-120b
       config:
         apiBaseUrl: https://api.groq.com/openai/v1
         apiKeyEnvar: GROQ_API_KEY

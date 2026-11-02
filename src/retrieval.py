@@ -13,11 +13,19 @@ from langchain_core.documents import Document
 from langchain_core.retrievers import BaseRetriever
 
 from config import settings
+import re
 
+# Lowercase, and keep codes like "CDD-5.4" or "EMB-ISR-01" as single tokens,
+# stripping surrounding punctuation such as brackets and full stops.
+_BM25_TOKEN = re.compile(r"[a-z0-9]+(?:[-.][a-z0-9]+)*")
+
+
+def bm25_tokenize(text: str) -> list[str]:
+    return _BM25_TOKEN.findall(text.lower())
 
 def build_bm25_retriever(chunks: List[Document]) -> BM25Retriever:
     """Build a BM25 (sparse/lexical) retriever over the given chunks."""
-    retriever = BM25Retriever.from_documents(chunks)
+    retriever = BM25Retriever.from_documents(chunks, preprocess_func=bm25_tokenize)
     retriever.k = settings.BM25_TOP_K
     return retriever
 
