@@ -1,0 +1,449 @@
+/* ---------- Page frame ---------- */
+
+.app {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100%;
+}
+
+.masthead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.875rem clamp(1rem, 3vw, 2rem);
+  background: var(--surface);
+  border-bottom: 1px solid var(--rule);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* A square seal: the bank's mark, in the same green as policy references */
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 2px solid var(--seal);
+  color: var(--seal);
+  font-family: var(--font-text);
+  font-size: var(--step-1);
+  font-weight: 600;
+}
+
+.brand-name {
+  font-weight: 700;
+  font-size: var(--step-0);
+  line-height: 1.2;
+}
+
+.brand-sub {
+  color: var(--muted);
+  font-size: var(--step--1);
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted);
+  font-size: var(--step--1);
+}
+
+.status-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.status-ready .status-dot {
+  background: var(--seal);
+}
+
+.status-waiting .status-dot {
+  background: var(--error);
+}
+
+.disclaimer {
+  padding: 0.5rem clamp(1rem, 3vw, 2rem);
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: var(--step--1);
+  text-align: center;
+}
+
+/* ---------- Two-column workspace ---------- */
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+  min-height: 0;
+}
+
+.conversation {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: clamp(1.25rem, 4vw, 2.5rem) clamp(1rem, 4vw, 3rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.messages > * {
+  width: 100%;
+  max-width: 44rem;
+}
+
+/* ---------- Empty state ---------- */
+
+.intro h1 {
+  font-family: var(--font-text);
+  font-size: var(--step-3);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.75rem;
+}
+
+.intro > p {
+  color: var(--muted);
+  max-width: 38rem;
+}
+
+.intro-try {
+  margin-top: 1.5rem !important;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--ink) !important;
+}
+
+.starters {
+  list-style: none;
+  padding: 0;
+  border-top: 1px solid var(--rule);
+}
+
+.starters button {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 0.25rem;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.starters button:hover:not(:disabled) {
+  color: var(--seal);
+  background: var(--seal-soft);
+}
+
+.starters button:disabled {
+  cursor: progress;
+  opacity: 0.6;
+}
+
+/* ---------- Messages ---------- */
+
+.message-user {
+  align-self: flex-end;
+  width: auto;
+  max-width: min(36rem, 90%);
+  padding: 0.625rem 0.875rem;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 0.5rem 0.5rem 0.125rem 0.5rem;
+}
+
+.message-answer {
+  padding-left: 1rem;
+  border-left: 3px solid var(--rule);
+}
+
+.message-answer.is-active {
+  border-left-color: var(--seal);
+}
+
+.answer-text {
+  font-family: var(--font-text);
+  font-size: var(--step-1);
+  line-height: 1.65;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.answer-text ul {
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* The signature element: policy codes as citation tabs that jump to their source */
+.code-chip {
+  display: inline-block;
+  margin: 0 0.125rem;
+  padding: 0 0.375rem;
+  border: 1px solid var(--seal);
+  border-radius: 0.25rem;
+  background: var(--seal-soft);
+  color: var(--seal);
+  font-family: var(--font-ui);
+  font-size: 0.8125em;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.5;
+  cursor: pointer;
+  vertical-align: 0.05em;
+}
+
+.code-chip:hover,
+.code-chip.is-active {
+  background: var(--seal);
+  color: var(--surface);
+}
+
+.answer-footer {
+  margin-top: 0.5rem;
+}
+
+.text-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--seal);
+  font-size: var(--step--1);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.message-error {
+  padding: 0.75rem 1rem;
+  background: var(--error-soft);
+  color: var(--error);
+  border-left: 3px solid var(--error);
+}
+
+.message-pending {
+  color: var(--muted);
+  font-size: var(--step--1);
+}
+
+/* An indeterminate progress line, drawn like a highlighter sweeping a page */
+.pending-bar {
+  display: block;
+  width: 12rem;
+  height: 3px;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(90deg, transparent, var(--seal), transparent) no-repeat;
+  background-size: 40% 100%;
+  animation: sweep 1.4s ease-in-out infinite;
+}
+
+@keyframes sweep {
+  from {
+    background-position: -40% 0;
+  }
+  to {
+    background-position: 140% 0;
+  }
+}
+
+/* ---------- Composer ---------- */
+
+.composer {
+  padding: 0.875rem clamp(1rem, 4vw, 3rem) 1rem;
+  border-top: 1px solid var(--rule);
+  background: var(--surface);
+}
+
+.composer textarea {
+  display: block;
+  width: 100%;
+  max-width: 44rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--rule);
+  border-radius: 0.375rem;
+  background: var(--paper);
+  resize: none;
+}
+
+.composer textarea:focus-visible {
+  border-color: var(--seal);
+}
+
+.composer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 44rem;
+  margin-top: 0.5rem;
+}
+
+.char-count {
+  color: var(--muted);
+  font-size: var(--step--1);
+  font-variant-numeric: tabular-nums;
+}
+
+.ask-button {
+  padding: 0.5rem 1.5rem;
+  border: 0;
+  border-radius: 0.375rem;
+  background: var(--seal);
+  color: var(--surface);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ask-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---------- Sources ---------- */
+
+.source-panel {
+  overflow-y: auto;
+  padding: clamp(1.25rem, 3vw, 2rem) 1.25rem;
+  background: var(--surface);
+  border-left: 1px solid var(--rule);
+}
+
+.source-panel h2 {
+  font-family: var(--font-text);
+  font-size: var(--step-2);
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.panel-note {
+  color: var(--muted);
+  font-size: var(--step--1);
+  margin-bottom: 1rem;
+}
+
+.source-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.source-card {
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--rule);
+  border-left-width: 4px;
+  background: var(--surface);
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+/* A cited passage is marked the way a reviewer marks a policy with a highlighter */
+.source-card.is-cited {
+  border-color: var(--seal);
+  background: var(--marker);
+}
+
+.source-header {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.source-rank {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1px solid var(--muted);
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.source-doc {
+  font-weight: 600;
+  font-size: var(--step--1);
+}
+
+.source-location {
+  color: var(--muted);
+  font-size: var(--step--1);
+}
+
+.source-text {
+  font-family: var(--font-text);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  margin-bottom: 0.375rem;
+}
+
+.source-text strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+}
+
+.inline-sources {
+  display: none;
+  margin-top: 0.75rem;
+}
+
+.inline-sources summary {
+  cursor: pointer;
+  color: var(--seal);
+  font-weight: 600;
+  font-size: var(--step--1);
+  margin-bottom: 0.75rem;
+}
+
+/* ---------- Narrow screens: one column, sources under each answer ---------- */
+
+@media (max-width: 900px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .source-panel {
+    display: none;
+  }
+
+  .inline-sources {
+    display: block;
+  }
+
+  .answer-footer {
+    display: none;
+  }
+
+  .intro h1 {
+    font-size: var(--step-2);
+  }
+
+  .status {
+    font-size: 0;
+  }
+
+  .status-dot {
+    width: 0.625rem;
+    height: 0.625rem;
+  }
+}

@@ -39,7 +39,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 ALLOWED_ORIGINS = [
     origin.strip()
     for origin in os.getenv(
-        "ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:3000"
+        "ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:5174,http://localhost:3000"
     ).split(",")
     if origin.strip()
 ]
