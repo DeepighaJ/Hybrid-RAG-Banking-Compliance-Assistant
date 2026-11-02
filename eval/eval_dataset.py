@@ -74,9 +74,7 @@ EVAL_DATASET = [
     {
         "question": "What are the risk factors in the customer risk scoring model and how are they weighted?",
         "reference": (
-            "There are four factors: Customer Type (30%), Geography (30%), Products and "
-            "Services (25%), and Delivery Channel (15%). Each is scored from 1 to 5 "
-            "(RA-3.2)."
+            "Four factors: Customer Type (30%), Geography (30%), Products and Services (25%), and Delivery Channel (15%) (RA-3.2)."
         ),
         "query_type": "single_document_policy",
     },
@@ -149,9 +147,7 @@ EVAL_DATASET = [
             "threshold applies?"
         ),
         "reference": (
-            "The worked example company scores 3.50, so it is rated High risk (RA-3.6). "
-            "For High-risk business customers the beneficial ownership threshold is 10% "
-            "(CDD-4.2)."
+            "The worked example company is rated High risk (RA-3.6), so the 10% beneficial ownership threshold for High-risk business customers applies (CDD-4.2)."
         ),
         "query_type": "cross_document",
     },
@@ -186,9 +182,7 @@ EVAL_DATASET = [
     {
         "question": "What is the beneficial ownership threshold for Medium-risk business customers?",
         "reference": (
-            "25% or more of the shares or voting rights, directly or indirectly (CDD-4.1). "
-            "The 10% threshold applies only to High-risk customers and correspondent "
-            "banking relationships."
+            "25% or more of the shares or voting rights, directly or indirectly (CDD-4.1)."
         ),
         "query_type": "precision_test",
     },
@@ -204,9 +198,7 @@ EVAL_DATASET = [
     {
         "question": "Who approves changes to the AML Risk Assessment Policy?",
         "reference": (
-            "The Board Risk Committee (RA-1.4). This differs from the KYC and CDD "
-            "Procedures FAQ, whose changes are approved by the Financial Crime Risk "
-            "Committee."
+            "The Board Risk Committee (RA-1.4)."
         ),
         "query_type": "precision_test",
     },
