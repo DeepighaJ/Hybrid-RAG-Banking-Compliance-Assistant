@@ -132,7 +132,7 @@ def main() -> None:
     # max_workers=3 was observed hitting frequent 429 Too Many Requests
     # errors with long retry backoffs, making the run slower overall than a
     # lower, steadier concurrency that stays under the rate limit.
-    judge_run_config = RunConfig(timeout=300, max_workers=2)
+    judge_run_config = RunConfig(timeout=300, max_workers=1)
 
     result = evaluate(
         dataset=ragas_dataset,
