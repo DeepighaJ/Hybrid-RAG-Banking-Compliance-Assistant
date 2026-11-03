@@ -1,9 +1,15 @@
 # Hybrid RAG: Banking/AML Compliance Assistant
 
+**Live demo:** https://ambitious-rock-0e6d4db1e.4.azurestaticapps.net
+*(Runs on scale-to-zero hosting: the first question after a quiet period can take a minute while the server starts.)*
+
+![Answer with a clickable policy citation highlighting its source](assets/app-answer.png)
+
 A production-structured retrieval-augmented generation (RAG) system for answering questions over
-banking compliance documentation, built with a hybrid retrieval pipeline (dense + sparse search,
-reranking, and metadata-aware chunking) on top of Azure OpenAI, and evaluated with two
-complementary layers: Ragas quality scoring and Promptfoo regression testing.
+banking compliance documentation. It combines a hybrid retrieval pipeline (dense + sparse search,
+cross-encoder reranking, and document-aware chunking) on Azure OpenAI with two complementary
+evaluation layers (Ragas quality scoring and Promptfoo regression testing), and is deployed as a
+FastAPI service on Azure Container Apps behind a React frontend on Azure Static Web Apps.
 
 This repository is a refactored, modular version of an original prototype notebook (retained under
 `notebooks/` for reference), restructured into a standard Python package layout suitable for version
@@ -42,11 +48,18 @@ The documents are designed as a **test corpus**, not just content:
 weighted ensemble fusion → cross-encoder reranking (`BAAI/bge-reranker-v2-m3`, top 5) →
 grounded answer generation (Azure OpenAI `gpt-5-mini`) with policy-code citations.
 
+**Deployment:** React frontend (Azure Static Web Apps) → FastAPI service in a Docker container
+(Azure Container Apps) → Azure OpenAI. See [Deployment](#deployment).
+
 **Chunking is document-aware:**
 
 - The Q&A document is split **one question per chunk**, so near-duplicate questions never share a
   chunk; each chunk carries `question_number` and `section` metadata, and page headers are dropped.
 - The narrative policy uses recursive character splitting.
+
+**The frontend makes answers traceable:** every policy code in an answer (`CDD-5.3`, `RA-3.7`) is
+clickable and highlights the retrieved passage that contains it, next to a ranked list of all
+sources with document, question or section, and page.
 
 ## Project Structure
 
@@ -63,6 +76,13 @@ grounded answer generation (Azure OpenAI `gpt-5-mini`) with policy-code citation
 │   ├── prompts.py           # Grounding-focused prompt template
 │   ├── cache.py             # LLM response caching (in-memory / optional Redis semantic)
 │   └── pipeline.py          # RAGPipeline: orchestrates all stages end-to-end
+├── frontend/                # React + Vite UI with clickable policy-code citations
+│   ├── src/
+│   │   ├── App.jsx          # Chat, citation chips, ranked sources panel
+│   │   ├── api.js           # Client for the FastAPI backend (VITE_API_URL)
+│   │   ├── App.css
+│   │   └── index.css        # Design tokens, light and dark themes
+│   └── vite.config.js       # Dev server pinned to port 5174
 ├── scripts/
 │   └── build_index.py       # CLI: build/rebuild the FAISS index offline
 ├── tests/
@@ -74,12 +94,17 @@ grounded answer generation (Azure OpenAI `gpt-5-mini`) with policy-code citation
 │   ├── promptfoo_tests.py   # Generates Promptfoo test cases from eval_dataset.py
 │   ├── promptfoo_provider.py # Promptfoo adapter wrapping RAGPipeline
 │   └── results/             # Saved per-run score reports
+├── .github/workflows/       # GitHub Actions: builds and deploys the frontend on push to main
 ├── notebooks/
 │   └── banking_hybrid_rag.ipynb   # Original prototype notebook (reference)
-├── assets/                   # README images
-├── data/                     # Source PDFs (Eastmere Bank, committed)
-├── main.py                   # CLI entrypoint for querying the pipeline
-├── requirements.txt
+├── assets/                  # README images
+├── data/                    # Source PDFs (Eastmere Bank, committed)
+├── api.py                   # FastAPI service: /ask, /health, CORS, rate limits
+├── main.py                  # CLI entrypoint for querying the pipeline
+├── Dockerfile               # API container image
+├── .dockerignore            # Keeps secrets, eval code and the frontend out of the image
+├── requirements.txt         # Runtime dependencies (pipeline, CLI, API)
+├── requirements-eval.txt    # Eval and test dependencies (includes requirements.txt)
 ├── promptfooconfig.yaml
 ├── .env.example
 └── README.md
@@ -90,8 +115,13 @@ grounded answer generation (Azure OpenAI `gpt-5-mini`) with policy-code citation
 ### 1. Prerequisites
 
 - Python 3.10+
+- Node.js 22.22+ (for the frontend and Promptfoo)
 - An Azure OpenAI resource with a chat model (e.g. `gpt-5-mini`) and an embedding model
   (e.g. `text-embedding-3-small`) deployed
+
+> **Windows tip:** keep the project in a path without `&` or spaces (e.g. `D:\Projects\...`).
+> npm runs scripts through `cmd.exe`, which treats `&` as a command separator and breaks the
+> frontend tooling.
 
 ### 2. Install dependencies
 
@@ -101,8 +131,11 @@ cd <repo-folder>
 python -m venv venv
 venv\Scripts\activate        # Windows
 # source venv/bin/activate   # macOS/Linux
-pip install -r requirements.txt
+pip install -r requirements-eval.txt
 ```
+
+`requirements-eval.txt` installs everything, including the evaluation and test tools.
+`requirements.txt` alone is enough to run the pipeline and API (this is what the Docker image uses).
 
 ### 3. Configure environment variables
 
@@ -127,9 +160,23 @@ new text, and the two retrievers silently disagree.
 
 ### 5. Ask questions
 
+From the command line:
+
 ```bash
 python main.py "What is the beneficial ownership threshold for High-risk customers?"
 python main.py --interactive
+```
+
+Or run the full stack (API + frontend) locally:
+
+```bash
+# Terminal 1: API on http://localhost:8000 (interactive docs at /docs)
+python -m uvicorn api:app --port 8000
+
+# Terminal 2: frontend on http://localhost:5174
+cd frontend
+npm install
+npm run dev
 ```
 
 Good demo questions:
@@ -172,7 +219,6 @@ for doc in result["source_documents"]:
 ## Testing
 
 ```bash
-pip install pytest
 python -m pytest tests/ -v
 ```
 
@@ -215,7 +261,7 @@ python eval/evaluate.py --limit 3    # smoke test
 python eval/evaluate.py              # full run
 ```
 
-**Results: how the evals found and fixed two real bugs**
+**How the evals found and fixed two real bugs**
 
 The first full run exposed two retrieval problems:
 
@@ -226,10 +272,7 @@ The first full run exposed two retrieval problems:
    too few for questions needing 2-3 facts, so it answered part and declined the rest. Fixed by
    raising `RERANK_TOP_N` to 5.
 
-Averages over the 17 in-scope questions (out-of-scope refusals are excluded, since Ragas scores a
-correct refusal as 0 relevancy; Promptfoo checks them instead):
-
-| Metric | Before fixes | After fixes |
+| Metric (17 in-scope questions) | Before fixes | After fixes |
 |---|---|---|
 | Faithfulness | 0.852 | **0.893** |
 | Answer Relevancy | 0.602 | **0.845** |
@@ -239,6 +282,38 @@ correct refusal as 0 relevancy; Promptfoo checks them instead):
 
 The small Context Precision drop is the expected cost of passing 5 chunks instead of 3; complete
 answers were judged worth more than a tighter context list.
+
+**Per-question results (after fixes)**
+
+| # | Question | Type | Faithfulness | Answer relevancy | Context precision |
+|---|---|---|---|---|---|
+| 1 | Can an account be opened before verification is complete? | FAQ | 0.91 | 0.81 | 0.92 |
+| 2 | Who approves a PEP relationship? | FAQ | 0.60 ¹ | 0.97 | 1.00 |
+| 3 | Which events trigger an out-of-cycle review? | FAQ | 1.00 | 0.72 | 1.00 |
+| 4 | How long are KYC records retained? | FAQ | 1.00 | 0.86 | 1.00 |
+| 5 | Risk scoring factors and weights | Policy | 1.00 | 0.80 | 0.50 |
+| 6 | Which customers are automatically High risk? | Policy | 1.00 | 0.91 | 0.83 |
+| 7 | Relationships in a Prohibited jurisdiction | Policy | 0.83 | 0.79 | 1.00 |
+| 8 | Trust: risk score and tier (3.25, Medium) | Calculation | 1.00 | 0.74 | 0.58 |
+| 9 | Missing geography data: score and tier (2.35, Medium) | Calculation | 0.50 ³ | 0.93 | 0.95 |
+| 10 | High-risk score threshold and review frequency | Cross-document | 1.00 | 0.99 | 0.33 |
+| 11 | Worked-example company: ownership threshold | Cross-document | 1.00 | 0.83 | 0.70 |
+| 12 | Country rated High: what happens, and how quickly | Cross-document | 1.00 ² | 0.72 | 1.00 |
+| 13 | PEP: tier, approver, and review frequency | Cross-document | 1.00 | 0.79 | 0.81 |
+| 14 | Ownership threshold for Medium-risk customers | Precision | 1.00 | 1.00 | 1.00 |
+| 15 | How often is the Country Risk List reviewed? | Precision | 1.00 | 0.91 | 1.00 |
+| 16 | Who approves AML policy changes? | Precision | 0.33 ³ | 0.98 | 0.58 |
+| 17 | What does policy CDD-5.4 say? | Precision | 1.00 | 0.63 | 1.00 |
+| | **Average (17 in-scope questions)** | | **0.893** | **0.845** | **0.836** |
+
+¹ A Ragas claim-splitting false negative: the "Head **or** delegated deputy" rule was split into two
+"must approve" claims. The answer is verbatim-correct, and Promptfoo passes it.
+² Faithful but incomplete: the answer correctly declines the "how quickly" part (the multi-hop
+limitation). Faithfulness measures unsupported claims, not completeness; Promptfoo catches this one.
+³ Not yet diagnosed claim by claim with `eval/debug_faithfulness.py`.
+
+The two out-of-scope questions are excluded from the averages, since Ragas scores a correct
+refusal as 0 answer relevancy. Promptfoo verifies them with an exact-phrase check instead.
 
 ### Layer 2: Promptfoo regression tests
 
@@ -254,7 +329,9 @@ npx promptfoo view
 **Result: 18 of 19 passing.** The one failure is a genuine limitation (see below), kept failing
 deliberately rather than hidden by editing the reference answer.
 
-Requires Node.js 22.22+.
+![Promptfoo results summary: 18 of 19 passing](assets/promptfoo-results.png)
+
+![Promptfoo per-test results grid](assets/promptfoo-results1.png)
 
 ### Known limitations (found by the evals)
 
@@ -272,6 +349,44 @@ Requires Node.js 22.22+.
 - **Reference answers must match the question's scope.** Four early Promptfoo failures were
   correct answers penalized for omitting side facts included in the references. The references
   were trimmed to what each question asks.
+- **Narrative chunks can span two sections.** The policy document is split by size, so a chunk can
+  start mid-section and run into the next one; its source label then names the later heading. A
+  planned fix is splitting the policy at its `RA-x.x` headings, as the FAQ is split by question.
+
+## Deployment
+
+| Component | Service | Notes |
+|---|---|---|
+| Frontend (React + Vite) | Azure Static Web Apps (Free) | Built and deployed by GitHub Actions on every push to `main` |
+| API (FastAPI) | Azure Container Apps | 2 vCPU / 4 GiB, scale-to-zero (min 0, max 1 replica) |
+| Container image | GitHub Container Registry | Public image; no secrets inside |
+| LLM + embeddings | Azure OpenAI | `gpt-5-mini`, `text-embedding-3-small` |
+
+**API** (`api.py`): `POST /ask` and `GET /health`, with CORS restricted to the frontend's origin,
+per-IP and global daily rate limits (a hard ceiling on Azure OpenAI spend), input length
+validation, and structured source metadata for the citation panel. The reranker is loaded at
+startup so the first visitor doesn't wait for it.
+
+**Docker image:** CPU-only PyTorch (avoids several GB of unused GPU libraries), the reranker model
+downloaded at build time so containers never fetch it on startup, a non-root user, and the FAISS
+index rebuilt from the PDFs at startup so it always matches the documents in the image.
+
+**Configuration and secrets:** the Azure OpenAI key is stored as an encrypted Container Apps secret
+and referenced by an environment variable; `.env` is excluded from both git and the Docker build.
+The frontend's API address is supplied at build time through `VITE_API_URL` in the GitHub Actions
+workflow, and the API's allowed browser origins through `ALLOWED_ORIGINS`.
+
+**Cost controls:** scale-to-zero (no compute cost while idle), a single-replica cap, the API's
+global daily request limit, and an Azure budget alert.
+
+### Run the API in Docker locally
+
+```bash
+docker build -t rag-api .
+docker run --rm -p 8000:8000 --env-file .env rag-api
+```
+
+`--env-file` passes your `.env` values in at run time (values must not be wrapped in quotes).
 
 ## Notes
 
