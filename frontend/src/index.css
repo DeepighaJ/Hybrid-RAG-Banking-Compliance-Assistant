@@ -1,0 +1,102 @@
+/* Design tokens. Palette: ink on cool paper, a "seal" green for policy references,
+   and a highlighter yellow that marks the passage a citation points to. */
+:root {
+  color-scheme: light;
+  --paper: #f6f7f5;
+  --surface: #ffffff;
+  --ink: #1b2733;
+  --muted: #5a6673;
+  --rule: #d8ddd9;
+  --seal: #1e5a48;
+  --seal-soft: #e3eeea;
+  --marker: #f5e7a6;
+  --error: #9b2c2c;
+  --error-soft: #fbedec;
+
+  --font-ui: 'Public Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-text: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+
+  --step--1: 0.8125rem;
+  --step-0: 1rem;
+  --step-1: 1.125rem;
+  --step-2: 1.5rem;
+  --step-3: 2rem;
+
+  font-family: var(--font-ui);
+  font-size: 100%;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --paper: #121a20;
+    --surface: #1a242c;
+    --ink: #e6ebee;
+    --muted: #9aa7b2;
+    --rule: #2c3a44;
+    --seal: #6fb89f;
+    --seal-soft: #1e3530;
+    --marker: #5c5122;
+    --error: #f0a3a3;
+    --error-soft: #3a1f22;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--paper);
+}
+
+h1,
+h2,
+p,
+ul,
+blockquote {
+  margin: 0;
+}
+
+button,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--seal);
+  outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
